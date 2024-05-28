@@ -5,7 +5,7 @@ import os
 DYNAMODB_TABLE = 'Brand'
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1', aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'), aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
 table = dynamodb.Table('Brand')
-
+auth_table = dynamodb.Table('Auth')
 def search_item_by_name(name):
     print('searching name', name)
     try:
@@ -20,3 +20,12 @@ def search_item_by_name(name):
     except Exception as e:
         print(f"Error searching for item: {e}")
         return None
+
+def store_phone_number(phone_number):
+    print('storing phone number', phone_number)
+    auth_table.put_item(
+        Item={
+            'phone_number': phone_number
+        }
+    )
+
