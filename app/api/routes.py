@@ -2,7 +2,7 @@ from . import api_blueprint
 from flask import request, jsonify
 from app.services.openai_service import get_image_information
 from app.services.openai_service import search_products
-from app.services.awsdynamo_service import search_item_by_name, store_phone_number
+from app.services.awsdynamo_service import search_item_by_name, store_phone_number, get_tries
 from app.services.twilio_service import send_twilio_otp, verify_twilio_otp
 import base64
 
@@ -73,13 +73,17 @@ def verify_otp():
     phone_number = data.get('phone_number')
 
     if not otp:
-        return jsonify({"error": "No OPT sent"})
+        return jsonify({"error": "No OTP sent"}), 400
 
     try:
         status = verify_twilio_otp(otp, phone_number)
+        if status == "approved":
+            tries = get_tries(phone_number)
+            print(tries)
+            return jsonify({"status": status, "tries": tries}), 200
         return jsonify({"status": status}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 200
+        return jsonify({"error": str(e)}), 500
 
 
 

@@ -25,7 +25,21 @@ def store_phone_number(phone_number):
     print('storing phone number', phone_number)
     auth_table.put_item(
         Item={
-            'phone_number': phone_number
+            'phone_number': phone_number,
+            'tries': 20
         }
     )
-
+def get_tries(phone_number):
+    try:
+        response = auth_table.get_item(
+            Key={
+                'phone_number': phone_number
+            }
+        )
+        item = response.get('Item')
+        if item:
+            return item.get('tries', 0)
+        return 0
+    except Exception as e:
+        print(f"Error getting tries for phone number: {e}")
+        return 0
